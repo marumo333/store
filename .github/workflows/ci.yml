@@ -12,23 +12,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ruby/setup-ruby@v1
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.2.2
-      - run: gem install bundler
-      - run: bundle install --jobs 4 --retry 3
-      - run: bundle exec brakeman --no-exit-on-warn
+          bundler-cache: true        # ← Bundler キャッシュ
+
+      - name: Add Linux platform to lockfile
+        run: bundle lock --add-platform x86_64-linux
+
+      - name: Install Gems
+        run: bundle install --jobs 4 --retry 3
+
+      - name: Run Brakeman
+        run: bundle exec brakeman --no-exit-on-warn
 
   # RuboCop 静的解析
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ruby/setup-ruby@v1
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.2.2
-      - run: gem install rubocop
-      - run: bundle exec rubocop
+          bundler-cache: true
+
+      - name: Add Linux platform to lockfile
+        run: bundle lock --add-platform x86_64-linux
+
+      - name: Install Gems
+        run: bundle install --jobs 4 --retry 3
+
+      - name: Run RuboCop
+        run: bundle exec rubocop
 
   # Rails テスト実行
   test:
@@ -47,29 +66,31 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ruby/setup-ruby@v1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.2.2
+          bundler-cache: true
 
-      # 必要なら JS 依存があればここでセットアップ
-      # - uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '16'
-      # - run: npm ci
+      - name: Add Linux platform to lockfile
+        run: bundle lock --add-platform x86_64-linux
 
-      - run: gem install bundler
-      - run: bundle install --jobs 4 --retry 3
+      - name: Install system dependencies for PostgreSQL
+        run: sudo apt-get update && sudo apt-get install -y libpq-dev
 
-      # CI 用 DB 設定をコピー
-      - run: cp config/database.yml.ci config/database.yml
+      - name: Install Gems
+        run: bundle install --jobs 4 --retry 3
 
-      # DB 作成＆スキーマロード
-      - run: |
-          bundle exec rails db:create
-          bundle exec rails db:schema:load
+      - name: Prepare database.yml
+        run: cp config/database.yml.ci config/database.yml
 
-      # テスト実行
-      - run: bundle exec rails test
+      - name: Create test database & load schema
+        run: |
+          RAILS_ENV=test bundle exec rails db:create db:schema:load
+
+      - name: Run test suite
+        run: bundle exec rails test
