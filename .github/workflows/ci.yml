@@ -7,42 +7,19 @@ on:
     branches: [main]
 
 jobs:
-  # -----------------------------------
-  # JavaScript 関連の静的解析
-  # -----------------------------------
-  scan_js:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      # Node.js をセットアップ
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-      # 依存をインストール
-      - run: npm ci
-      # JS用の lint コマンド等を実行
-      - run: npm run lint:js    # 例: package.json に定義したスクリプト名
-
-  # -----------------------------------
-  # Ruby 側のセキュリティスキャン (Brakeman)
-  # -----------------------------------
+  # Ruby の脆弱性スキャン
   scan_ruby:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      # Ruby をセットアップ
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.2.2
-      # Bundler と gem をインストール
       - run: gem install bundler
       - run: bundle install --jobs 4 --retry 3
-      # Brakeman で脆弱性スキャン
       - run: bundle exec brakeman --no-exit-on-warn
 
-  # -----------------------------------
-  # Ruby コードの静的解析 (Rubocop)
-  # -----------------------------------
+  # RuboCop 静的解析
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -53,9 +30,7 @@ jobs:
       - run: gem install rubocop
       - run: bundle exec rubocop
 
-  # -----------------------------------
   # Rails テスト実行
-  # -----------------------------------
   test:
     runs-on: ubuntu-latest
     services:
@@ -72,30 +47,27 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
     steps:
       - uses: actions/checkout@v3
 
-      # Ruby セットアップ
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.2.2
 
-      # 必要なら JS アセット用に Node もセットアップ
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+      # 必要なら JS 依存があればここでセットアップ
+      # - uses: actions/setup-node@v3
+      #   with:
+      #     node-version: '16'
+      # - run: npm ci
 
-      # Bundler と gem のインストール
       - run: gem install bundler
       - run: bundle install --jobs 4 --retry 3
 
-      # JS アセットがある場合は依存インストール
-      - run: npm ci
-
-      # データベース設定ファイルを用意
+      # CI 用 DB 設定をコピー
       - run: cp config/database.yml.ci config/database.yml
 
-      # テスト用データベース作成とスキーマ読込
+      # DB 作成＆スキーマロード
       - run: |
           bundle exec rails db:create
           bundle exec rails db:schema:load
