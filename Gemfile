@@ -8,7 +8,7 @@ gem "propshaft"
 gem "sqlite3", "~> 2.1"
 
 # テスト／CI 用は PostgreSQL
-gem "sqlite3", "~> 2.1"  # PostgreSQL adapter
+gem "pg", "~> 1.4"  # PostgreSQL adapter
 
 gem "puma", "~> 6.0"
 gem "importmap-rails"
