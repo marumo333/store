@@ -5,10 +5,10 @@ gem "rails", "~> 8.0.2"
 gem "propshaft"
 
 # 開発用は SQLite3
-gem "sqlite3", "~> 1.4"
+gem "sqlite3", "~> 2.1"
 
 # テスト／CI 用は PostgreSQL
-gem "pg", "~> 1.4"  # PostgreSQL adapter
+gem "sqlite3", "~> 2.1"  # PostgreSQL adapter
 
 gem "puma", "~> 6.0"
 gem "importmap-rails"
