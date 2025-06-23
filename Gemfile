@@ -37,8 +37,7 @@ group :development, :test do
 end
 
 group :test do
-  # PostgreSQL adapter
-  gem "pg"
+  # PostgreSQL adapter (already defined above with version constraint)
   gem "capybara"
   gem "selenium-webdriver"
 end
