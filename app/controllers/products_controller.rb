@@ -28,6 +28,11 @@ class ProductsController < ApplicationController
     else
       render :edit, status: :unprocessable_entity
     end
+
+  def destroy
+    @product.destroy
+    redirect_to products_path
+  end
   end
   private
     def set_product
