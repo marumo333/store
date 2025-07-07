@@ -5,7 +5,7 @@ gem "rails", "~> 8.0.2"
 gem "propshaft"
 
 # 開発用は SQLite3
-gem "sqlite3", "~> 2.1"
+gem "sqlite3", "~> 2.7"
 
 # テスト／CI 用は PostgreSQL
 gem "pg", "~> 1.4"  # PostgreSQL adapter
