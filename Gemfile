@@ -10,7 +10,7 @@ gem "sqlite3", "~> 2.1"
 # テスト／CI 用は PostgreSQL
 gem "pg", "~> 1.4"  # PostgreSQL adapter
 
-gem "puma", "~> 6.0"
+gem "puma", "~> 6.6"
 gem "importmap-rails"
 gem "turbo-rails"
 gem "stimulus-rails"
